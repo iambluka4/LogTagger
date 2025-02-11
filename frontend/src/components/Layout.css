@@ -1,0 +1,36 @@
+/* frontend/src/components/Layout.css */
+body {
+  margin: 0;
+  background-color: #f0f4f8;
+  font-family: Arial, sans-serif;
+}
+
+.app-container {
+  margin: 20px;
+  color: #333;
+}
+
+.nav-bar {
+  display: flex;
+  gap: 15px;
+  background-color: #4a6fa5;
+  padding: 10px;
+  border-radius: 5px;
+}
+
+.nav-bar a {
+  color: #fff;
+  text-decoration: none;
+  font-weight: bold;
+}
+
+.nav-bar a:hover {
+  text-decoration: underline;
+}
+
+.content-container {
+  margin-top: 20px;
+  padding: 10px;
+  background: #fff;
+  border-radius: 5px;
+}
