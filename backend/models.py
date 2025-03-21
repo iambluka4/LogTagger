@@ -1,37 +1,8 @@
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
 from sqlalchemy.dialects.postgresql import JSON
-import enum
 
 db = SQLAlchemy()
-
-class UserRole(enum.Enum):
-    ADMIN = "admin"
-    ANALYST = "analyst"
-    VIEWER = "viewer"
-
-class User(db.Model):
-    __tablename__ = 'users'
-    id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(50), unique=True, nullable=False)
-    password = db.Column(db.String(255), nullable=False)  # Will store hashed passwords
-    description = db.Column(db.String(200), nullable=True)
-    role = db.Column(db.Enum(UserRole), nullable=False, default=UserRole.VIEWER)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    last_login = db.Column(db.DateTime, nullable=True)
-
-    def __repr__(self):
-        return f"<User {self.username}>"
-
-    def to_dict(self):
-        return {
-            'id': self.id,
-            'username': self.username,
-            'description': self.description,
-            'role': self.role.value,
-            'created_at': self.created_at.isoformat() if self.created_at else None,
-            'last_login': self.last_login.isoformat() if self.last_login else None
-        }
 
 class Alert(db.Model):
     __tablename__ = 'alerts'
@@ -40,7 +11,7 @@ class Alert(db.Model):
     rule_name = db.Column(db.String(200), nullable=True)
     severity = db.Column(db.String(50), nullable=True)
     timestamp = db.Column(db.String(50), nullable=True)
-    message = db.Column(db.Text, nullable=False)
+    message = db.Column(db.Text, nullable=True)
     auto_tags = db.Column(db.String(250), default="")
 
     def __repr__(self):
@@ -98,6 +69,7 @@ class Configuration(db.Model):
     config_value = db.Column(db.Text, nullable=True)
     description = db.Column(db.String(200), nullable=True)
     is_active = db.Column(db.Boolean, default=True)
+    siem_source = db.Column(db.String(50), nullable=True)
     
     def to_dict(self):
         return {
@@ -106,7 +78,8 @@ class Configuration(db.Model):
             'config_type': self.config_type,
             'config_value': self.config_value,
             'description': self.description,
-            'is_active': self.is_active
+            'is_active': self.is_active,
+            'siem_source': self.siem_source
         }
     
     def update(self, data):
@@ -130,12 +103,9 @@ class Event(db.Model):
     mitre_technique = db.Column(db.String(100), nullable=True)
     detection_confidence = db.Column(db.Float, nullable=True)
     manual_review = db.Column(db.Boolean, default=False)
-    reviewed_by = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=True)
-    review_timestamp = db.Column(db.DateTime, nullable=True)
     manual_tags = db.Column(db.String(500), nullable=True)
 
     raw_logs = db.relationship('RawLog', backref='event', lazy=True)
-    reviewer = db.relationship('User', backref='reviewed_events', lazy=True)
 
     def to_dict(self):
         return {
@@ -153,9 +123,7 @@ class Event(db.Model):
             'mitre_technique': self.mitre_technique,
             'detection_confidence': self.detection_confidence,
             'manual_review': self.manual_review,
-            'manual_tags': self.manual_tags.split(',') if self.manual_tags else [],
-            'reviewed_by': self.reviewed_by,
-            'review_timestamp': self.review_timestamp.isoformat() if self.review_timestamp else None
+            'manual_tags': self.manual_tags.split(',') if self.manual_tags else []
         }
 
 class RawLog(db.Model):
@@ -176,12 +144,9 @@ class RawLog(db.Model):
 class ExportJob(db.Model):
     __tablename__ = 'export_jobs'
     id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     format = db.Column(db.String(20), nullable=False)  # CSV, JSON
     filters = db.Column(JSON, nullable=True)
     status = db.Column(db.String(20), nullable=False, default="pending")  # pending, processing, completed, failed
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     completed_at = db.Column(db.DateTime, nullable=True)
     file_path = db.Column(db.String(255), nullable=True)
-    
-    user = db.relationship('User', backref='export_jobs', lazy=True)

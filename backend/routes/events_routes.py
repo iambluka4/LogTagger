@@ -1,9 +1,7 @@
 import json
 from datetime import datetime
 from flask import Blueprint, request, jsonify, current_app
-from models import db, Event, RawLog, Settings, User, ExportJob
-from flask_jwt_extended import jwt_required, get_jwt_identity
-from services.auth import analyst_required
+from models import db, Event, RawLog, Settings, ExportJob
 from services.siem_service import SIEMService
 from services.ml_service import MLService
 import pandas as pd
@@ -12,7 +10,6 @@ import os
 events_bp = Blueprint('events_bp', __name__)
 
 @events_bp.route('/api/events', methods=['GET'])
-@jwt_required()
 def get_events():
     # Get query parameters for filtering
     severity = request.args.get('severity')
@@ -80,7 +77,6 @@ def get_events():
     return jsonify(result)
 
 @events_bp.route('/api/events/<int:event_id>', methods=['GET'])
-@jwt_required()
 def get_event(event_id):
     event = Event.query.get(event_id)
     
@@ -97,8 +93,6 @@ def get_event(event_id):
     return jsonify(result)
 
 @events_bp.route('/api/events/<int:event_id>/label', methods=['POST'])
-@jwt_required()
-@analyst_required
 def label_event(event_id):
     event = Event.query.get(event_id)
     
@@ -106,8 +100,6 @@ def label_event(event_id):
         return jsonify({"error": "Event not found"}), 404
     
     data = request.json
-    username = get_jwt_identity()
-    user = User.query.filter_by(username=username).first()
     
     # Update event with manual labels
     if 'true_positive' in data:
@@ -123,7 +115,6 @@ def label_event(event_id):
     
     # Mark as manually reviewed
     event.manual_review = True
-    event.reviewed_by = user.id
     event.review_timestamp = datetime.utcnow()
     
     db.session.commit()
@@ -131,8 +122,6 @@ def label_event(event_id):
     return jsonify({"message": "Event labeled successfully", "event": event.to_dict()})
 
 @events_bp.route('/api/events/fetch', methods=['POST'])
-@jwt_required()
-@analyst_required
 def fetch_events():
     settings = Settings.query.first()
     
@@ -216,18 +205,11 @@ def fetch_events():
     })
 
 @events_bp.route('/api/events/export', methods=['POST'])
-@jwt_required()
 def export_events():
     data = request.json or {}
-    username = get_jwt_identity()
-    user = User.query.filter_by(username=username).first()
-    
-    if not user:
-        return jsonify({"error": "User not found"}), 404
     
     # Create export job
     export_job = ExportJob(
-        user_id=user.id,
         format=data.get('format', 'csv'),
         filters=data.get('filters', {}),
         status='pending'

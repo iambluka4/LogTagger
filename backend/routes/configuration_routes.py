@@ -1,6 +1,4 @@
 from flask import Blueprint, jsonify, request, current_app
-from flask_jwt_extended import jwt_required
-from services.auth import admin_required
 from models import db, Configuration
 import json
 import os
@@ -8,7 +6,6 @@ import os
 configuration_bp = Blueprint('configuration_bp', __name__)
 
 @configuration_bp.route('/api/system-config', methods=['GET'])
-@jwt_required()
 def get_system_config():
     # Get all configuration items grouped by type
     config_items = Configuration.query.all()
@@ -99,8 +96,6 @@ def get_system_config():
     return jsonify(result)
 
 @configuration_bp.route('/api/system-config', methods=['POST'])
-@jwt_required()
-@admin_required
 def update_system_config():
     data = request.json
     
