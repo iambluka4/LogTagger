@@ -1,0 +1,119 @@
+.api-config-container {
+  padding: 20px;
+}
+
+.config-tabs {
+  display: flex;
+  margin-bottom: 20px;
+  border-bottom: 1px solid #ddd;
+}
+
+.tab-btn {
+  padding: 10px 15px;
+  background: none;
+  border: none;
+  border-bottom: 3px solid transparent;
+  cursor: pointer;
+  font-size: 16px;
+  margin-right: 10px;
+}
+
+.tab-btn.active {
+  border-bottom: 3px solid #4a6fa5;
+  font-weight: bold;
+}
+
+.tab-btn:hover {
+  background-color: #f5f5f5;
+}
+
+.config-section {
+  margin-bottom: 30px;
+}
+
+.form-group {
+  margin-bottom: 15px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: bold;
+}
+
+.form-group input {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.test-btn {
+  padding: 8px 15px;
+  background-color: #6c757d;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  margin-right: 10px;
+}
+
+.test-btn:hover:not(:disabled) {
+  background-color: #5a6268;
+}
+
+.save-btn {
+  padding: 10px 20px;
+  background-color: #4a6fa5;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+.save-btn:hover:not(:disabled) {
+  background-color: #3a5a80;
+}
+
+button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.error-message {
+  background-color: #f8d7da;
+  color: #721c24;
+  padding: 10px;
+  border-radius: 4px;
+  margin-bottom: 20px;
+}
+
+.success-message {
+  background-color: #d4edda;
+  color: #155724;
+  padding: 10px;
+  border-radius: 4px;
+  margin-bottom: 20px;
+}
+
+.test-result {
+  padding: 10px;
+  border-radius: 4px;
+  margin-bottom: 20px;
+}
+
+.test-result.success {
+  background-color: #d4edda;
+  color: #155724;
+}
+
+.test-result.error {
+  background-color: #f8d7da;
+  color: #721c24;
+}
+
+.actions {
+  margin-top: 30px;
+  text-align: right;
+}
