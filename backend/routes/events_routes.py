@@ -1,7 +1,7 @@
 import json
 from datetime import datetime
 from flask import Blueprint, request, jsonify, current_app
-from models import db, Event, RawLog, Settings, ExportJob
+from models import db, Event, RawLog, Settings, ExportJob, Alert
 from services.siem_service import SIEMService
 from services.ml_service import MLService
 import pandas as pd
@@ -83,14 +83,22 @@ def get_event(event_id):
     if not event:
         return jsonify({"error": "Event not found"}), 404
     
-    # Get the raw logs associated with this event
-    raw_logs = [raw_log.to_dict() for raw_log in event.raw_logs]
+    # Get the event data
+    event_dict = event.to_dict()
     
-    # Prepare the response with both event and raw logs
-    result = event.to_dict()
-    result['raw_logs'] = raw_logs
+    # Add alert data if available
+    if event.alert_id:
+        alert = Alert.query.get(event.alert_id)
+        if alert:
+            event_dict['alert_data'] = alert.to_dict()
     
-    return jsonify(result)
+    # Get raw log data
+    raw_logs = RawLog.query.filter_by(event_id=event.id).all()
+    if raw_logs:
+        # Повертати список raw_logs, а не один елемент для узгодження з очікуваннями фронтенду
+        event_dict['raw_logs'] = [raw_log.to_dict() for raw_log in raw_logs]
+    
+    return jsonify(event_dict)
 
 @events_bp.route('/api/events/<int:event_id>/label', methods=['POST'])
 def label_event(event_id):
@@ -163,6 +171,11 @@ def fetch_events():
         if existing_event:
             continue
             
+        # Look for related alert based on rule_id or similar identifier
+        related_alert = None
+        if 'rule_name' in log and log['rule_name']:
+            related_alert = Alert.query.filter_by(rule_name=log['rule_name']).first()
+        
         # Create new event
         new_event = Event(
             event_id=log['event_id'],
@@ -170,6 +183,7 @@ def fetch_events():
             source_ip=log['source_ip'],
             severity=log['severity'],
             siem_source=log['siem_source'],
+            alert_id=related_alert.id if related_alert else None,
             labels={}
         )
         
@@ -261,6 +275,7 @@ def export_events():
         export_job.status = 'completed'
         export_job.file_path = file_path
         export_job.completed_at = datetime.utcnow()
+        export_job.record_count = len(events_data)  # Додаємо кількість записів
         db.session.commit()
         
         return jsonify({

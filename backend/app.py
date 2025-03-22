@@ -11,6 +11,25 @@ from routes.dashboard_routes import dashboard_bp
 import logging
 import os
 from sqlalchemy import inspect
+import time
+
+def validate_db_connection(app, retries=3, delay=5):
+    """Validate database connection with retries"""
+    with app.app_context():
+        for attempt in range(retries):
+            try:
+                # Try to connect to the database
+                db.engine.connect()
+                logging.info("Database connection established successfully!")
+                return True
+            except Exception as e:
+                logging.error(f"Database connection failed (attempt {attempt+1}/{retries}): {str(e)}")
+                if attempt < retries - 1:
+                    logging.info(f"Retrying in {delay} seconds...")
+                    time.sleep(delay)
+                else:
+                    logging.error("Max retries reached. Could not connect to database!")
+                    return False
 
 def create_app(env_name='development'):
     app = Flask(__name__)
@@ -52,6 +71,11 @@ def create_app(env_name='development'):
         except Exception as e:
             app.logger.error(f"Database connection error: {str(e)}")
             app.logger.error("Please check database configuration and connection")
+
+    # After db initialization, validate the connection
+    validate_db_connection(app, 
+                         retries=app.config.get('DATABASE_RETRY_LIMIT', 3),
+                         delay=app.config.get('DATABASE_RETRY_DELAY', 5))
 
     # Root route
     @app.route('/')

@@ -125,7 +125,7 @@ function DataLabeling() {
         attack_type: response.data.attack_type || '',
         mitre_tactic: response.data.mitre_tactic || '',
         mitre_technique: response.data.mitre_technique || '',
-        manual_tags: response.data.manual_tags || []
+        manual_tags: Array.isArray(response.data.manual_tags) ? response.data.manual_tags : []
       });
     } catch (error) {
       setError('Error fetching event details: ' + (error.response?.data?.message || error.message));
@@ -238,6 +238,17 @@ function DataLabeling() {
       });
     } finally {
       setFetchingLogs(false);
+    }
+  };
+
+  // Format dates consistently
+  const formatTimestamp = (timestamp) => {
+    if (!timestamp) return 'N/A';
+    try {
+      return new Date(timestamp).toLocaleString();
+    } catch (e) {
+      console.error("Invalid timestamp format:", e);
+      return timestamp;
     }
   };
 
@@ -380,7 +391,7 @@ function DataLabeling() {
                         </span>
                       </td>
                       <td>{event.source_ip || 'N/A'}</td>
-                      <td>{new Date(event.timestamp).toLocaleString()}</td>
+                      <td>{formatTimestamp(event.timestamp)}</td>
                       <td>
                         <span className={`review-status ${event.manual_review ? 'reviewed' : 'not-reviewed'}`}>
                           {event.manual_review ? 'Reviewed' : 'Not Reviewed'}
@@ -443,20 +454,30 @@ function DataLabeling() {
               </div>
               
               <div className="detail-group">
-                <strong>Timestamp:</strong> {new Date(currentEvent.timestamp).toLocaleString()}
+                <strong>Timestamp:</strong> {formatTimestamp(currentEvent.timestamp)}
               </div>
               
               <div className="detail-group">
                 <strong>SIEM Source:</strong> {currentEvent.siem_source}
               </div>
               
-              {currentEvent.labels && Object.keys(currentEvent.labels).length > 0 && (
+              {currentEvent.alert_data && (
+                <div className="detail-group">
+                  <strong>Related Alert:</strong> {currentEvent.alert_data.rule_name}
+                  <div className="alert-details">
+                    <span>Severity: {currentEvent.alert_data.severity}</span>
+                    <span>Time: {formatTimestamp(currentEvent.alert_data.timestamp)}</span>
+                  </div>
+                </div>
+              )}
+              
+              {currentEvent.labels && typeof currentEvent.labels === 'object' && Object.keys(currentEvent.labels).length > 0 && (
                 <div className="detail-group">
                   <strong>Auto Labels:</strong>
                   <div className="auto-labels">
                     {Object.entries(currentEvent.labels).map(([key, value]) => (
                       <span key={key} className="auto-label">
-                        {key}: {value.toString()}
+                        {key}: {typeof value === 'object' ? JSON.stringify(value) : String(value)}
                       </span>
                     ))}
                   </div>
