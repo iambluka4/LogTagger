@@ -16,21 +16,20 @@ function Dashboard() {
     events_today: 0,
     labeled_events: 0,
     true_positives: 0,
-    siem_sources: []
+    siem_sources: [] // Initialize with an empty array
   });
-  
   const [topAttacks, setTopAttacks] = useState([]);
   const [severityData, setSeverityData] = useState({});
   const [timeRange, setTimeRange] = useState('7days');
-  
+
   useEffect(() => {
     fetchDashboardData();
   }, []);
-  
+
   useEffect(() => {
     fetchTimeRangeData();
   }, [timeRange]);
-  
+
   const fetchDashboardData = async () => {
     try {
       setLoading(true);
@@ -47,14 +46,13 @@ function Dashboard() {
       // Fetch severity distribution
       const severityResponse = await getSeverityDistribution();
       setSeverityData(severityResponse.data);
-      
     } catch (error) {
       setError('Error fetching dashboard data: ' + (error.response?.data?.message || error.message));
     } finally {
       setLoading(false);
     }
   };
-  
+
   const fetchTimeRangeData = async () => {
     try {
       const timelineResponse = await getEventTimeline({ range: timeRange });
@@ -64,15 +62,15 @@ function Dashboard() {
       console.error('Error fetching timeline data:', error);
     }
   };
-  
+
   const handleTimeRangeChange = (e) => {
     setTimeRange(e.target.value);
   };
-  
+
   if (loading) {
     return <div className="loading">Loading dashboard data...</div>;
   }
-  
+
   if (error) {
     return <div className="error-message">{error}</div>;
   }
@@ -186,12 +184,16 @@ function Dashboard() {
       <div className="data-section">
         <h3>SIEM Sources</h3>
         <div className="source-distribution">
-          {stats.siem_sources.map(source => (
-            <div className="source-item" key={source.name}>
-              <div className="source-name">{source.name}</div>
-              <div className="source-count">{source.count} events</div>
-            </div>
-          ))}
+          {stats.siem_sources && stats.siem_sources.length > 0 ? (
+            stats.siem_sources.map(source => (
+              <div className="source-item" key={source.name}>
+                <div className="source-name">{source.name}</div>
+                <div className="source-count">{source.count} events</div>
+              </div>
+            ))
+          ) : (
+            <p className="no-data">No SIEM source data available</p>
+          )}
         </div>
       </div>
     </div>
