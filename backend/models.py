@@ -64,6 +64,7 @@ class Label(db.Model):
 
 class Settings(db.Model):
     __tablename__ = 'settings'
+    # Stores API configurations
     id = db.Column(db.Integer, primary_key=True)
     wazuh_api_url = db.Column(db.String(255), nullable=True)
     wazuh_api_key = db.Column(db.String(255), nullable=True)
@@ -92,6 +93,7 @@ class Settings(db.Model):
 
 class Configuration(db.Model):
     __tablename__ = 'configurations'
+    # Stores system configuration
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), unique=True, nullable=False)
     config_type = db.Column(db.String(50), nullable=False)

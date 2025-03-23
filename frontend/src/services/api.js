@@ -10,13 +10,54 @@ const apiClient = axios.create({
 
 // API Functions
 
-// Config
-export const getConfig = () => {
-  return apiClient.get('/api/config');
+// Config - We need to ensure this points to the right endpoint
+export const getConfig = async () => {
+  try {
+    console.log('Fetching configuration...');
+    const response = await axios.get('/api/system-config'); // system-config endpoint
+    console.log('Configuration fetched:', response.data);
+    return response;
+  } catch (error) {
+    console.error('Error fetching configuration:', error);
+    throw error;
+  }
 };
 
-export const updateConfig = (data) => {
-  return apiClient.post('/api/config', data);
+// For API configuration specifically
+export const getApiConfig = async () => {
+  try {
+    console.log('Fetching API configuration...');
+    const response = await axios.get('/api/config'); // api-config endpoint
+    console.log('API Configuration fetched:', response.data);
+    return response;
+  } catch (error) {
+    console.error('Error fetching API configuration:', error);
+    throw error;
+  }
+};
+
+export const updateApiConfig = async (config) => {
+  try {
+    console.log('Updating API configuration with data:', config);
+    const response = await axios.post('/api/config', config);
+    console.log('API Configuration update response:', response.data);
+    return response;
+  } catch (error) {
+    console.error('Error updating API configuration:', error);
+    throw error;
+  }
+};
+
+export const updateConfig = async (config) => {
+  try {
+    console.log('Updating configuration with data:', config);
+    const response = await axios.post('/api/system-config', config);
+    console.log('Configuration update response:', response.data);
+    return response;
+  } catch (error) {
+    console.error('Error updating configuration:', error);
+    throw error;
+  }
 };
 
 export const testConnection = (connectionData) => {

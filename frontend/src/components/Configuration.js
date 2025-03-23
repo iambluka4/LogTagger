@@ -38,18 +38,43 @@ function Configuration() {
       const config = response.data;
       
       if (config.general) {
-        setGeneralSettings(config.general);
+        // Convert string values to appropriate types
+        const parsedGeneral = {
+          ...config.general,
+          data_retention_days: parseInt(config.general.data_retention_days, 10) || 90,
+          refresh_interval_minutes: parseInt(config.general.refresh_interval_minutes, 10) || 30,
+          auto_tagging_enabled: config.general.auto_tagging_enabled === true || 
+                               config.general.auto_tagging_enabled === 'true',
+          ml_classification_enabled: config.general.ml_classification_enabled === true || 
+                                    config.general.ml_classification_enabled === 'true'
+        };
+        setGeneralSettings(parsedGeneral);
       }
       
       if (config.mitre) {
-        setMitreSettings(config.mitre);
+        // Convert string values to appropriate types
+        const parsedMitre = {
+          ...config.mitre,
+          use_custom_mappings: config.mitre.use_custom_mappings === true || 
+                              config.mitre.use_custom_mappings === 'true'
+        };
+        setMitreSettings(parsedMitre);
       }
       
       if (config.export) {
-        setExportSettings(config.export);
+        // Convert string values to appropriate types
+        const parsedExport = {
+          ...config.export,
+          max_records_per_export: parseInt(config.export.max_records_per_export, 10) || 5000,
+          include_raw_logs: config.export.include_raw_logs === true || 
+                           config.export.include_raw_logs === 'true'
+        };
+        setExportSettings(parsedExport);
       }
       
+      console.log('Loaded configuration:', config);
     } catch (error) {
+      console.error('Error loading configuration:', error);
       setError('Error fetching configuration: ' + (error.response?.data?.message || error.message));
     } finally {
       setLoading(false);
@@ -88,19 +113,36 @@ function Configuration() {
       setError(null);
       setSuccess(null);
       
-      // Combine all settings
-      const configData = {
-        general: generalSettings,
-        mitre: mitreSettings,
-        export: exportSettings
+      // Ensure numeric values are properly formatted
+      const formattedGeneralSettings = {
+        ...generalSettings,
+        data_retention_days: parseInt(generalSettings.data_retention_days, 10),
+        refresh_interval_minutes: parseInt(generalSettings.refresh_interval_minutes, 10)
       };
       
+      const formattedExportSettings = {
+        ...exportSettings,
+        max_records_per_export: parseInt(exportSettings.max_records_per_export, 10)
+      };
+      
+      // Combine all settings
+      const configData = {
+        general: formattedGeneralSettings,
+        mitre: mitreSettings,
+        export: formattedExportSettings
+      };
+      
+      console.log('Saving configuration:', configData);
       await updateConfig(configData);
       setSuccess('Configuration saved successfully');
+      
+      // Refresh the configuration to ensure we display the saved values
+      await fetchConfiguration();
       
       // Clear success message after 3 seconds
       setTimeout(() => setSuccess(null), 3000);
     } catch (error) {
+      console.error('Error saving configuration:', error);
       setError('Error saving configuration: ' + (error.response?.data?.message || error.message));
     } finally {
       setLoading(false);

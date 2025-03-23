@@ -7,6 +7,7 @@ configuration_bp = Blueprint('configuration_bp', __name__)
 
 @configuration_bp.route('/api/system-config', methods=['GET'])
 def get_system_config():
+    # Returns data from Configuration model
     # Get all configuration items grouped by type
     config_items = Configuration.query.all()
     
@@ -97,6 +98,7 @@ def get_system_config():
 
 @configuration_bp.route('/api/system-config', methods=['POST'])
 def update_system_config():
+    # Updates Configuration model
     data = request.json
     
     if not data:

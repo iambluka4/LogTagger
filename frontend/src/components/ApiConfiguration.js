@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { getConfig, updateConfig, testConnection } from '../services/api';
+import { getApiConfig, updateApiConfig, testConnection } from '../services/api';
 import './ApiConfiguration.css';
 
 function ApiConfiguration() {
@@ -27,11 +27,31 @@ function ApiConfiguration() {
   const fetchConfig = async () => {
     try {
       setLoading(true);
-      const response = await getConfig();
+      setError(null);
+      const response = await getApiConfig(); // Changed from getConfig()
+      console.log("Fetched API configuration:", response.data);
+      
       if (response.data) {
-        setConfigData(response.data);
+        // Only update fields that exist in the response
+        const newConfigData = { ...configData };
+        
+        // Process all API configs
+        ['wazuh_api_url', 'wazuh_api_key', 'splunk_api_url', 'splunk_api_key', 
+         'elastic_api_url', 'elastic_api_key', 'ml_api_url', 'ml_api_key'].forEach(field => {
+          if (response.data[field] !== undefined && response.data[field] !== null) {
+            // Don't replace masked API keys ('****') with actual values
+            if (field.includes('_api_key') && response.data[field] === '****') {
+              // Keep existing value
+            } else {
+              newConfigData[field] = response.data[field];
+            }
+          }
+        });
+        
+        setConfigData(newConfigData);
       }
     } catch (error) {
+      console.error("Error fetching API config:", error);
       setError('Error fetching config: ' + (error.response?.data?.message || error.message));
     } finally {
       setLoading(false);
@@ -54,10 +74,21 @@ function ApiConfiguration() {
   const handleSave = async () => {
     try {
       setLoading(true);
-      await updateConfig(configData);
+      setError(null);
+      setSaveSuccess(false);
+      setTestResult(null);
+      
+      console.log("Saving API configuration:", configData);
+      await updateApiConfig(configData); // Changed from updateConfig() // This posts to /api/system-config
+      
       setSaveSuccess(true);
-      setTimeout(() => setSaveSuccess(false), 3000); // Clear success message after 3 seconds
+      
+      // Refresh the configuration after saving
+      await fetchConfig();
+      
+      setTimeout(() => setSaveSuccess(false), 3000);
     } catch (error) {
+      console.error("Error saving API config:", error);
       setError('Error updating config: ' + (error.response?.data?.message || error.message));
     } finally {
       setLoading(false);
