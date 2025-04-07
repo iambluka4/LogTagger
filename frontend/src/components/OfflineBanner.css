@@ -1,0 +1,35 @@
+.offline-banner {
+  background-color: #fcf8e3;
+  color: #8a6d3b;
+  padding: 10px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.offline-message {
+  display: flex;
+  align-items: center;
+}
+
+.offline-icon {
+  margin-right: 10px;
+  font-size: 1.2em;
+}
+
+.retry-connection-btn {
+  background-color: #8a6d3b;
+  color: white;
+  border: none;
+  padding: 5px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.retry-connection-btn:hover {
+  background-color: #7a5d2b;
+}

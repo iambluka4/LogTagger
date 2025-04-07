@@ -22,7 +22,7 @@
 
 .tab-btn.active {
   background-color: #4a6fa5;
-  color: white;  /* Для активної вкладки залишаємо білий текст, оскільки фон темний */
+  color: white; /* Для активної вкладки залишаємо білий текст, оскільки фон темний */
   border-color: #4a6fa5;
 }
 
@@ -44,7 +44,7 @@
   display: block;
   margin-bottom: 5px;
   font-weight: bold;
-  color: #333;  /* Забезпечуємо видимість тексту міток */
+  color: #333; /* Забезпечуємо видимість тексту міток */
 }
 
 input[type="text"],
@@ -56,7 +56,8 @@ input[type="password"] {
   color: #333; /* Забезпечуємо видимість введеного тексту */
 }
 
-.test-btn, .save-btn {
+.test-btn,
+.save-btn {
   padding: 8px 15px;
   background-color: #4a6fa5;
   color: white;
@@ -66,11 +67,13 @@ input[type="password"] {
   margin-top: 10px;
 }
 
-.test-btn:hover, .save-btn:hover {
+.test-btn:hover,
+.save-btn:hover {
   background-color: #3a5a80;
 }
 
-.test-btn:disabled, .save-btn:disabled {
+.test-btn:disabled,
+.save-btn:disabled {
   background-color: #ccc;
   cursor: not-allowed;
 }
@@ -119,4 +122,73 @@ button:disabled {
 .actions {
   margin-top: 30px;
   text-align: right;
+}
+
+/* Add these styles to your existing CSS */
+.test-result {
+  margin-top: 1rem;
+  padding: 0.75rem;
+  border-radius: 4px;
+  border-left: 4px solid;
+}
+
+.test-result.success {
+  background-color: #d4edda;
+  color: #155724;
+  border-color: #28a745;
+}
+
+.test-result.error {
+  background-color: #f8d7da;
+  color: #721c24;
+  border-color: #dc3545;
+}
+
+.test-message {
+  font-weight: 500;
+  margin-bottom: 0.5rem;
+}
+
+.test-details {
+  margin-top: 0.5rem;
+  font-size: 0.9em;
+}
+
+.test-details summary {
+  cursor: pointer;
+  font-weight: 500;
+  color: #555;
+}
+
+.test-details .details-content {
+  margin-top: 0.5rem;
+  padding: 0.5rem;
+  background: rgba(0, 0, 0, 0.05);
+  border-radius: 3px;
+}
+
+.detail-item {
+  margin-bottom: 0.25rem;
+}
+
+.detail-item strong {
+  margin-right: 0.5rem;
+}
+
+/* Improved pulsing animation for connection test button */
+@keyframes pulse {
+  0% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.6;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+.test-btn:disabled {
+  background-color: #6c757d;
+  animation: pulse 1.5s infinite;
 }

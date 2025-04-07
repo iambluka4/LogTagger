@@ -72,13 +72,19 @@ body {
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
+.main-content {
+  flex: 1;
+  padding: 20px;
+  background-color: #f0f4f8;
+}
+
 .footer {
-  background-color: #4a6fa5;
-  color: white;
+  background-color: #f8f9fa;
+  padding: 10px 20px;
   text-align: center;
-  padding: 15px;
-  font-size: 0.9rem;
-  margin-top: 20px;
+  font-size: 0.8rem;
+  color: #6c757d;
+  border-top: 1px solid #e9ecef;
 }
 
 .footer p {

@@ -10,7 +10,7 @@ from flask import Flask
 from sqlalchemy import text
 from config import get_config
 from app import create_app
-from models import db
+from models import db, Settings  # Added Settings import here
 
 # Налаштування логування
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -28,24 +28,27 @@ def db_init(mode):
     app = create_app(mode)
     with app.app_context():
         logger.info("Creating database tables...")
+        
+        # Avoid querying tables before they're created
+        # Commented out: if not Settings.query.first():
+        
+        # Create all tables based on models
         db.create_all()
+        
+        # Now it's safe to initialize default settings
+        # Check if settings table is empty after creation
+        if db.session.query(db.func.count(Settings.id)).scalar() == 0:
+            # Add default settings here if needed
+            pass
+            
         logger.info("Database initialized successfully")
 
 @cli.command('migrate')
 @click.option('--mode', default='development', help='Mode: development, production, testing')
 def migrate(mode):
-    """Застосувати міграції до бази даних."""
-    app = create_app(mode)
-    with app.app_context():
-        try:
-            # Виконуємо всі міграції
-            logger.info("Running apply_all_migrations.py...")
-            from migrations.apply_all_migrations import apply_all_migrations
-            apply_all_migrations()
-            logger.info("Migrations completed successfully")
-        except Exception as e:
-            logger.error(f"Migration error: {str(e)}", exc_info=True)
-            sys.exit(1)
+    """Команда міграції збережена для зворотної сумісності."""
+    logger.info("Міграції були переміщені в архів і більше не потрібні в новому розгортанні.")
+    return True
 
 @cli.command('check-db')
 @click.option('--mode', default='development', help='Mode: development, production, testing')

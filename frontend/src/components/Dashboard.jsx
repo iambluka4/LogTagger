@@ -1,11 +1,11 @@
-import React, { useState, useEffect } from 'react';
-import { getDashboardStats } from '../services/api';
+import React, { useState, useEffect } from "react";
+import { getDashboardStats } from "../services/api";
 
 function Dashboard() {
   const [stats, setStats] = useState({
     events_count: 0,
     alerts_count: 0,
-    labels_count: 0
+    labels_count: 0,
   });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -18,7 +18,7 @@ function Dashboard() {
         setStats(response.data);
         setError(null);
       } catch (err) {
-        setError('Помилка завантаження статистики');
+        setError("Помилка завантаження статистики");
         console.error("Dashboard error:", err);
       } finally {
         setLoading(false);
@@ -31,10 +31,10 @@ function Dashboard() {
   return (
     <div className="dashboard">
       <h1>Dashbooard</h1>
-      
+
       {loading && <p>Завантаження...</p>}
       {error && <p className="error">{error}</p>}
-      
+
       {!loading && !error && (
         <div className="stats-container">
           <div className="stat-card">

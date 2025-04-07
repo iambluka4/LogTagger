@@ -12,7 +12,11 @@ LogTagger is a specialized tool designed for automated and semi-automated labeli
 - **Automatic Log Labeling**: Apply tags based on predefined rules (True_positive, False_positive, Attack_Type)
 - **MITRE ATT&CK Framework**: Automatic identification of tactics and techniques
 - **Semi-Automatic Labeling**: Support for expert review and manual tag adjustment
-- **ML/LLM Integration**: Use machine learning models for enhanced automatic tagging
+- **Advanced ML Classification**: 
+  - Modular ML provider system supporting local, API and demo modes
+  - Classification confidence metrics with configurable thresholds
+  - Human verification workflow for ML-classified events
+  - Performance metrics tracking and visualization
 - **Dataset Export**: Generate structured CSV or JSON datasets for AI training
 - **Visualization Dashboard**: Web interface for log review, manual tagging, and analytics
 
@@ -23,6 +27,10 @@ LogTagger is a specialized tool designed for automated and semi-automated labeli
 - **Database**: PostgreSQL
 - **Containerization**: Docker
 - **Authentication**: JWT-based authentication system
+- **Machine Learning**:
+  - Local ML with scikit-learn
+  - Remote ML API integration
+  - Performance metrics tracking
 
 ## ⚙️ Installation
 
@@ -128,12 +136,37 @@ After installation, you can start both backend and frontend with:
 LogTagger uses a PostgreSQL database with two main tables:
 - `events` - Structured security events with labeling information
 - `raw_logs` - Raw log data from SIEM systems
+- `ml_performance_metrics` - Metrics tracking ML model performance
 
 To inspect your database structure:
 ```bash
 cd backend
 python tools/inspect_database.py
 ```
+
+## 🤖 Machine Learning Integration
+
+LogTagger features a flexible ML subsystem with the following capabilities:
+
+1. **Modular ML Provider System**:
+   - **Local ML**: Use scikit-learn based models for offline classification
+   - **API ML**: Connect to external ML service via REST API
+   - **Demo Provider**: Run with simulated ML for testing and demonstrations
+
+2. **ML Dashboard**:
+   - Monitor model performance with precision, recall, and F1 metrics
+   - Track performance by attack type classification
+   - Review ML-classified events and provide human verification
+
+3. **Configuration Options**:
+   - Set confidence thresholds for auto-applying labels
+   - Configure human verification requirements
+   - Enable/disable ML classification system-wide
+
+To use ML features:
+1. Navigate to "System Configuration" and enable ML classification
+2. Configure ML API endpoints or use the built-in local model
+3. Access the ML Dashboard to monitor performance and verify events
 
 ## 🔒 Security
 
@@ -147,8 +180,7 @@ python tools/inspect_database.py
 For more detailed documentation:
 - [API Documentation](docs/api.md)
 - [SIEM Integration Guide](docs/siem-integration.md)
-- [User Roles and Permissions](docs/user-roles.md)
-- [Development Guide](docs/development.md)
+- [ML Integration Guide](docs/ml-integration.md)
 
 ## 🤝 Contributing
 

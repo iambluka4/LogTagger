@@ -1,8 +1,10 @@
-import { render, screen } from '@testing-library/react';
-import App from './App';
+import { render, screen } from "@testing-library/react";
+import App from "./App";
 
-test('renders learn react link', () => {
+test("renders LogTagger app", () => {
   render(<App />);
-  const linkElement = screen.getByText(/learn react/i);
-  expect(linkElement).toBeInTheDocument();
+  
+  // Перевіряємо наявність тексту у футері, який точно є в додатку
+  const footerElement = screen.getByText(/LogTagger - Automated Security Log Tagging Tool/i);
+  expect(footerElement).toBeInTheDocument();
 });

@@ -1,54 +1,155 @@
 #!/bin/bash
+set -e
 
-set -e  # Зупинити скрипт у разі помилки
+# Colors for better output
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+RED='\033[0;31m'
+NC='\033[0m' # No Color
 
-#######################
-#      ЗМІННІ         #
-#######################
-DB_NAME="logtagger"
-DB_USER="logtagger"
-DB_PASSWORD="logtagger"  # В реальному середовищі використовуйте безпечніший пароль
+echo -e "${GREEN}Starting LogTagger cleanup process...${NC}"
 
-PROJECT_DIR="/mnt/d/MVP_2/LogTagger"
-BACKEND_DIR="$PROJECT_DIR/backend"
+# Define directories
+BACKEND_DIR="./backend"
+FRONTEND_DIR="./frontend"
+LOG_DIR="${BACKEND_DIR}/logs"
+EXPORT_DIR="${BACKEND_DIR}/exports"
+DATA_DIR="${BACKEND_DIR}/data"
+DB_FILE="${BACKEND_DIR}/logtagger.db"
+MIGRATIONS_ARCHIVE="${BACKEND_DIR}/archive"
 
-echo ">>> Очищення попереднього розгортання..."
+# Stop any running backend processes
+echo -e "${YELLOW}Stopping any running backend processes...${NC}"
+pkill -f "python.*app.py" || echo -e "${YELLOW}No backend processes found to stop${NC}"
 
-# 1. Зупиняємо сервіси, якщо вони запущені
-echo ">>> Зупиняємо сервіси..."
-sudo systemctl stop logtagger-backend 2>/dev/null || true
-sudo systemctl disable logtagger-backend 2>/dev/null || true
-sudo rm -f /etc/systemd/system/logtagger-backend.service 2>/dev/null || true
-sudo systemctl daemon-reload 2>/dev/null || true
-
-# 2. Видаляємо базу даних
-echo ">>> Видаляємо базу даних..."
-sudo -u postgres psql -c "DROP DATABASE IF EXISTS $DB_NAME;" || true
-sudo -u postgres psql -c "DROP USER IF EXISTS $DB_USER;" || true
-sudo -u postgres psql -c "DROP TYPE IF EXISTS userrole CASCADE;" || true  # Видаляємо залишковий enum тип
-
-# 3. Видаляємо віртуальне середовище
-echo ">>> Видаляємо віртуальне середовище Python..."
-if [ -d "$BACKEND_DIR/venv" ]; then
-    rm -rf "$BACKEND_DIR/venv"
+# Clean database file
+if [ -f "$DB_FILE" ]; then
+    echo -e "${YELLOW}Removing database file: ${DB_FILE}${NC}"
+    rm -f "$DB_FILE"
+    echo -e "${GREEN}✓ Database file removed${NC}"
+else
+    echo -e "${YELLOW}No database file found to remove${NC}"
 fi
 
-# 4. Видаляємо тимчасові файли
-echo ">>> Видаляємо тимчасові файли і логи..."
-rm -rf "$BACKEND_DIR/logs"/* 2>/dev/null || true
-rm -rf "$BACKEND_DIR/exports"/* 2>/dev/null || true
-rm -f "$BACKEND_DIR"/*.log 2>/dev/null || true
-rm -f "$BACKEND_DIR"/*.pyc 2>/dev/null || true
-rm -rf "$BACKEND_DIR"/__pycache__ 2>/dev/null || true
-find "$BACKEND_DIR" -name "__pycache__" -exec rm -rf {} + 2>/dev/null || true
+# Clean logs directory
+if [ -d "$LOG_DIR" ]; then
+    echo -e "${YELLOW}Cleaning logs directory...${NC}"
+    rm -rf "${LOG_DIR:?}"/* || true
+    echo -e "${GREEN}✓ Logs directory cleaned${NC}"
+else
+    echo -e "${YELLOW}Creating logs directory...${NC}"
+    mkdir -p "$LOG_DIR"
+    echo -e "${GREEN}✓ Logs directory created${NC}"
+fi
 
-# Видаляємо залишки файлів аутентифікації
-echo ">>> Видаляємо файли аутентифікації..."
-rm -f "$BACKEND_DIR/services/auth.py" 2>/dev/null || true
-rm -f "$BACKEND_DIR/routes/auth_routes.py" 2>/dev/null || true
-rm -f "$BACKEND_DIR/routes/users_routes.py" 2>/dev/null || true
-rm -f "$BACKEND_DIR/tools/check_users.py" 2>/dev/null || true
-rm -f "$FRONTEND_DIR/src/components/Auth/Login.jsx" 2>/dev/null || true
-rm -f "$FRONTEND_DIR/src/contexts/AuthContext.jsx" 2>/dev/null || true
+# Clean exports directory
+if [ -d "$EXPORT_DIR" ]; then
+    echo -e "${YELLOW}Cleaning exports directory...${NC}"
+    rm -rf "${EXPORT_DIR:?}"/* || true
+    echo -e "${GREEN}✓ Exports directory cleaned${NC}"
+else
+    echo -e "${YELLOW}Creating exports directory...${NC}"
+    mkdir -p "$EXPORT_DIR"
+    echo -e "${GREEN}✓ Exports directory created${NC}"
+fi
 
-echo ">>> Очищення завершено, тепер можна запустити bash.sh для чистового розгортання MVP версії без логіну"
+# Ensure data directory exists but preserve MITRE data if it exists
+if [ -d "$DATA_DIR" ]; then
+    echo -e "${YELLOW}Checking data directory...${NC}"
+    # Preserve MITRE data file if it exists
+    if [ -f "${DATA_DIR}/mitre_attack.json" ]; then
+        echo -e "${YELLOW}Preserving existing MITRE data...${NC}"
+        mkdir -p /tmp/logtagger_tmp
+        cp "${DATA_DIR}/mitre_attack.json" /tmp/logtagger_tmp/
+        rm -rf "${DATA_DIR:?}"/* || true
+        mkdir -p "$DATA_DIR"
+        mv /tmp/logtagger_tmp/mitre_attack.json "$DATA_DIR/"
+        rm -rf /tmp/logtagger_tmp
+        echo -e "${GREEN}✓ Data directory cleaned, MITRE data preserved${NC}"
+    else
+        echo -e "${YELLOW}Cleaning data directory...${NC}"
+        rm -rf "${DATA_DIR:?}"/* || true
+        echo -e "${GREEN}✓ Data directory cleaned${NC}"
+    fi
+else
+    echo -e "${YELLOW}Creating data directory...${NC}"
+    mkdir -p "$DATA_DIR"
+    echo -e "${GREEN}✓ Data directory created${NC}"
+fi
+
+# Create archive directory if it doesn't exist
+if [ ! -d "$MIGRATIONS_ARCHIVE" ]; then
+    echo -e "${YELLOW}Creating archive directory for migrations...${NC}"
+    mkdir -p "$MIGRATIONS_ARCHIVE"
+    echo -e "${GREEN}✓ Archive directory created${NC}"
+fi
+
+# Видалення архіву міграцій
+if [ -d "$MIGRATIONS_ARCHIVE" ]; then
+    echo -e "${YELLOW}Видалення архіву міграцій...${NC}"
+    rm -rf "${MIGRATIONS_ARCHIVE:?}"
+    echo -e "${GREEN}✓ Архів міграцій видалено${NC}"
+fi
+
+# Видалення папки міграцій, якщо вона існує
+MIGRATIONS_DIR="${BACKEND_DIR}/migrations"
+if [ -d "$MIGRATIONS_DIR" ]; then
+    echo -e "${YELLOW}Видалення директорії міграцій...${NC}"
+    rm -rf "${MIGRATIONS_DIR:?}"
+    echo -e "${GREEN}✓ Директорія міграцій видалена${NC}"
+fi
+
+# Clean Python cache files
+echo -e "${YELLOW}Removing Python cache files...${NC}"
+find "$BACKEND_DIR" -type d -name "__pycache__" -exec rm -rf {} +
+find "$BACKEND_DIR" -name "*.pyc" -delete
+echo -e "${GREEN}✓ Python cache files removed${NC}"
+
+# Ask if frontend build should be cleaned
+read -p "Do you want to clean frontend build files? (y/n): " clean_frontend
+if [[ "$clean_frontend" =~ ^[Yy]$ ]]; then
+    if [ -d "${FRONTEND_DIR}/build" ]; then
+        echo -e "${YELLOW}Removing frontend build files...${NC}"
+        rm -rf "${FRONTEND_DIR:?}/build"
+        echo -e "${GREEN}✓ Frontend build files removed${NC}"
+    else
+        echo -e "${YELLOW}No frontend build directory found${NC}"
+    fi
+    
+    # Clean node_modules if user wants to
+    read -p "Do you want to remove node_modules (this will require npm install later)? (y/n): " clean_modules
+    if [[ "$clean_modules" =~ ^[Yy]$ ]]; then
+        if [ -d "${FRONTEND_DIR}/node_modules" ]; then
+            echo -e "${YELLOW}Removing node_modules directory...${NC}"
+            rm -rf "${FRONTEND_DIR:?}/node_modules"
+            echo -e "${GREEN}✓ node_modules directory removed${NC}"
+        else
+            echo -e "${YELLOW}No node_modules directory found${NC}"
+        fi
+    fi
+fi
+
+# Ask if virtual environment should be recreated
+read -p "Do you want to recreate the Python virtual environment? (y/n): " recreate_venv
+if [[ "$recreate_venv" =~ ^[Yy]$ ]]; then
+    venv_dir="${BACKEND_DIR}/venv"
+    if [ -d "$venv_dir" ]; then
+        echo -e "${YELLOW}Removing existing virtual environment...${NC}"
+        rm -rf "${venv_dir:?}"
+    fi
+    
+    echo -e "${YELLOW}Creating new virtual environment...${NC}"
+    python3 -m venv "$venv_dir"
+    echo -e "${GREEN}✓ New virtual environment created${NC}"
+    
+    echo -e "${YELLOW}Installing dependencies...${NC}"
+    source "${venv_dir}/bin/activate"
+    pip install --upgrade pip
+    pip install -r "${BACKEND_DIR}/requirements.txt"
+    echo -e "${GREEN}✓ Dependencies installed${NC}"
+fi
+
+echo -e "${GREEN}Cleanup process completed successfully!${NC}"
+echo -e "${YELLOW}Next steps:${NC}"
+echo -e "1. Start the backend server: cd backend && python app.py"
+echo -e "2. Start the frontend development server: cd frontend && npm start"

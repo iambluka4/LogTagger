@@ -1,18 +1,38 @@
-// frontend/src/components/Layout.js
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import './Layout.css';
 
 function Layout({ children }) {
+  const location = useLocation();
+  const isActive = (path) => location.pathname === path;
+
+  // Видаляємо будь-які перевірки автентифікації
+  
   return (
-    <div className="app-container">
+    <div className="app-container" data-testid="app-layout">
       <nav className="nav-bar">
         <div className="nav-links">
-          <Link to="/">Dashboard</Link>
-          <Link to="/labeling">Data Labeling</Link>
-          <Link to="/export">Data Export</Link>
-          <Link to="/api-config">API Config</Link>
-          <Link to="/config">Configuration</Link>
+          <Link to="/" className={isActive("/") ? "active" : ""}>
+            Dashboard
+          </Link>
+          <Link
+            to="/labeling"
+            className={isActive("/labeling") ? "active" : ""}
+          >
+            Data Labeling
+          </Link>
+          <Link to="/export" className={isActive("/export") ? "active" : ""}>
+            Data Export
+          </Link>
+          <Link
+            to="/api-config"
+            className={isActive("/api-config") ? "active" : ""}
+          >
+            API Config
+          </Link>
+          <Link to="/config" className={isActive("/config") ? "active" : ""}>
+            Configuration
+          </Link>
         </div>
       </nav>
       <hr />

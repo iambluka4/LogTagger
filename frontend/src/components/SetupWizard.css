@@ -1,0 +1,190 @@
+.setup-wizard {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.setup-wizard-content {
+  background-color: white;
+  border-radius: 6px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  width: 600px;
+  max-width: 90%;
+  padding: 30px;
+}
+
+.wizard-step {
+  margin: 20px 0;
+}
+
+.siem-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  margin-top: 20px;
+}
+
+.siem-option {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: none;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 20px;
+  width: 150px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.siem-option:hover {
+  border-color: #4a90e2;
+  background-color: #f8f9fa;
+}
+
+.siem-icon {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  margin-bottom: 10px;
+  font-size: 24px;
+  font-weight: bold;
+  color: white;
+}
+
+.wazuh-icon {
+  background-color: #00a9e0;
+}
+
+.splunk-icon {
+  background-color: #ff425b;
+}
+
+.elastic-icon {
+  background-color: #00bfb3;
+}
+
+.form-group {
+  margin-bottom: 20px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 500;
+}
+
+.form-group input {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 16px;
+}
+
+.form-hint {
+  display: block;
+  margin-top: 5px;
+  color: #666;
+  font-size: 12px;
+}
+
+.wizard-buttons {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 30px;
+}
+
+.button-primary {
+  background-color: #4a90e2;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+.button-secondary {
+  background-color: #f8f9fa;
+  color: #333;
+  border: 1px solid #ddd;
+  padding: 10px 20px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+.button-primary:hover {
+  background-color: #2a70c2;
+}
+
+.button-secondary:hover {
+  background-color: #e9ecef;
+}
+
+.error-message {
+  background-color: #f8d7da;
+  color: #721c24;
+  padding: 10px;
+  border-radius: 4px;
+  margin-bottom: 20px;
+}
+
+.success-message {
+  text-align: center;
+  margin: 20px 0;
+}
+
+.success-message h3 {
+  color: #28a745;
+  margin-bottom: 10px;
+}
+
+.skip-setup-container {
+  margin-top: 30px;
+  padding-top: 20px;
+  border-top: 1px solid #e0e0e0;
+  text-align: center;
+}
+
+.button-skip {
+  background-color: #6c757d;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 16px;
+  margin-top: 10px;
+}
+
+.button-skip:hover {
+  background-color: #5a6268;
+}
+
+.demo-mode-indicator {
+  background-color: #ff9800;
+  color: white;
+  padding: 5px 10px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: bold;
+  margin-left: 10px;
+  display: inline-flex;
+  align-items: center;
+}
+
+.demo-mode-indicator i {
+  margin-right: 5px;
+}
